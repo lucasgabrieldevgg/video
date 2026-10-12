@@ -2,6 +2,8 @@
 
 *Dual-stack: ffmpeg CLI (deterministic) + Python (MoviePy for composition, plain orchestration for CLI-native ops). Every recipe ends with its guards. Craft context lives in `the-edit.md`; the method in `the-pipeline.md`.*
 
+*Recipe corpus written for this skill, merging technique ideas from upstream — the EDL + review-gate shape (nateherkai/hyperframes-student-kit), reframing and speed-ramp strategies (louisedesadeleer/clipify), multicam/xfade battle patterns (jianshuo/claude-skills) — re-authored as original dual-stack implementations. Full credits: ATTRIBUTION.md.*
+
 ### R01 · Probe & audit
 
 **When:** always, before any other recipe.

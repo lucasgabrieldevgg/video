@@ -2,6 +2,8 @@
 
 *Dual-stack, same contract as recipes-cut.md. Delivery verification (R32) is not optional — it is the last recipe every project runs.*
 
+*Recipe corpus written for this skill, merging technique ideas from upstream — two-pass loudness and SFX-level discipline (kurbaitaev/ghost-editor), libass burn and washed-out-color fixes (jianshuo/claude-skills), room-tone repair (nateherkai/hyperframes-student-kit), bed levels (AgriciDaniel/claude-shorts) — re-authored as original dual-stack implementations. Full credits: ATTRIBUTION.md.*
+
 ### R17 · Word-level transcription → SRT
 
 ```bash
