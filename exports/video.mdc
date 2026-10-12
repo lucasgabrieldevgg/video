@@ -1,0 +1,67 @@
+---
+description: video — professional video editing for AI agents: craft (grammar of the cut, pacing, retention) + transcript-driven pipeline (EDL, review gates) + ffmpeg mastery + audio/color/captions + ~32 dual-stack recipes with hard verification rules. Apply when cutting, trimming, removing silence or mistakes, making shorts/reels/clips, adding captions, fixing washed-out color or loudness, reframing to vertical, syncing multicam, concatenating, exporting for platforms, or building videos from code/data.
+globs:
+alwaysApply: true
+---
+
+# video (Cursor rules export)
+
+The condensed form of the `video` skill — the full skill lives at github.com/lucasgabrieldevgg/video; this file carries the operating rules.
+
+## The edit contract
+
+1. Every cut answers emotion, story, or rhythm — in Murch's order (51/23/10/7/5/4). A cut answering none is filler.
+2. The word-level transcript + EDL is the timeline. Timing lands on word onsets ±2 frames, never segment guesses.
+3. Probe before touching: ffprobe JSON first — VFR, rotation, color tags, audio layout. Screen recordings and phone files lie about all four.
+4. Plan in ledgers, render once: EDL edits are milliseconds and reversible; renders are minutes and destructive. One filtergraph pass; decode-re-encode cascades are a quality bug.
+5. Judgment is gated, mechanics are not: silence removal is mechanical; mistake removal surfaces candidates with context — never auto-cuts emphatic repetition.
+6. Audio is half the quality: loudness to platform target (two-pass loudnorm), bed ducks under every line, SFX on impacts never on words, breath preserved with room tone.
+7. Captions always ship: never over the face, inside safe areas (1080×1920: x 90–930, y 200–1600), longest line verified by an actual frame.
+8. Verify what you ship: frame strips across every transition, fresh ASR on final audio, measured LUFS, probed output. No pass from code inspection.
+
+## The craft core
+
+- Cut vocabulary: hard cut (the default — 9 of 10 cuts), J-cut (audio leads 0.5–2 s), L-cut (audio trails), match cut, jump cut (mask or own it), smash, cross-cut, cutaway, insert, montage, invisible cut, freeze.
+- Continuity: 180° axis, 30° angle change, eyeline match, cut on action, enter where the eye exits.
+- Timing: blinks and cuts coincide; breath is the talking-head metronome; graphics enter 0.15–0.25 s ahead of the anchor word; SFX audible onset within 2 frames of the visual landing.
+- Pacing: long-form A-roll 4–8 s median, B-roll every 15–40 s, interrupt every 20–30 s; vertical shorts 1–3 s, burst→anticipation→payoff, escalate and release. "A thing every 1–2 s" is a diagnostic, not a metronome.
+- Retention: first 3 seconds = a separate edit (muted-comprehensible, visible evidence, chosen payoff); open loops are spatial (plant → re-show at boundaries → advance → close on the opening image); loop-craft verticals.
+- Attention: one spotlight — exactly one thing at full brightness, hierarchy from the active/quiet ratio; if it doesn't get a word, it doesn't get drawn (~20 on-screen words/section).
+- Talking-head: takes chosen from the transcript table; cut in at first word −0.10..0.15 s, out at last word +0.20..0.30 s; Whisper merges restarts — re-transcribe the cut and audit; mask jump cuts with 0.2 s dissolves / shot-size change / B-roll (≤3 punch-ins per reel); keep breath — gaps 10× tighter than the speaker's median read as stutters, repair with room-tone donor slices.
+- Slop death list: sentence-boundary-only cuts · zooms on every cut · crossfades everywhere · captions on the face · music that never ducks · zero-gap silence removal · new full-screen graphic every 3 s · logo before value · whoosh on every cut · center-cropping two-person interviews · unverified "done".
+
+## The pipeline
+
+**Probe → Transcribe → Plan → Conform → Enhance → Verify → Deliver.**
+
+- Transcribe word-level (`-vn -ac 1 -ar 16000` first); correct the glossary BEFORE judging (fix spelling, never times or word ids).
+- Silence pass: trim pauses ≥ 0.55 s, keep 0.14–0.24 s breath (0.20 after sentence enders), head/tail air 0.22/0.34 s — removes 15–20% of a raw take.
+- Mistake pass: five separate scans (repetition → restarts → corrections → stutters → fillers — one criterion per pass), then a review gate with two-state decisions.
+- Conform in ONE `trim/atrim + concat` filtergraph; re-time the transcript deterministically onto the edited timeline.
+- Enhance in order: audio (denoise → loudnorm → bed/duck → SFX) → captions (from re-timed transcript) → color → graphics.
+- Verify: frame strips (`select='between(n,A,B)',scale=480:270,tile=6x7`), fresh ASR diff, measured LUFS/TP, ffprobe of the shipped file.
+
+## ffmpeg essentials
+
+- Stream copy when only container/metadata/keyframe-snapped cuts change; otherwise ONE re-encode with the full chain (`-filter_complex_script` for EDL graphs). `-c copy` still writes color tags — the instant washed-out fix.
+- `-ss` before `-i` (+ `-t` after) for fast accurate seeks; copy-trims snap to keyframes — `-force_key_frames` pre-plants exact lossless cut points.
+- Concat: demuxer (identical specs, lossless) / filter (heterogeneous, re-encodes) — probe everything, mixed specs glitch.
+- Speed: `setpts=PTS/2` + `atempo` (0.5–2.0 per instance, chain for more); ramps = per-segment speeds + concat.
+- Reframe 16:9→9:16: blur-pad (last resort) / center crop (single talker) / active-speaker pan (MAR-variance, ~5 fps sampling, ≥1.5 s hysteresis, step-function crop) / split-screen. Never center-crop two people.
+- Deliver: libx264 CRF 18–21 yuv420p high profile, GOP 2 s, `-movflags +faststart`, explicit `-colorspace bt709 -color_primaries bt709 -color_trc bt709` every time; HEVC needs `-tag:v hvc1`; platform caps (WeChat ≤10 Mbps → `-maxrate 8M`).
+- Bug gallery: VFR → `-vsync cfr -r 30` before anything; rotation metadata; non-monotonic DTS → `+genpts`; PCM in MP4; SRT `,mmm` separators; `amix=normalize=0` always.
+
+## Audio, captions, programmatic
+
+- Targets: −14 LUFS web / −16 short-form & podcast / −23 EBU; TP ≤ −1 dBTP. Two-pass loudnorm with `linear=true` (one-pass pumps). Voice normalized before SFX; SFX levels relative to voice p95 (ui −14 / whoosh −12 / impact −8 / meme −3 dB); bed 14–20 dB under, ducking via sidechaincompress.
+- Captions: burn for feeds that ignore tracks, soft-mux (`mov_text`) where honored, `.srt` sidecar always. libass: verify the filter exists, escape `force_style` commas, Fontsize is PlayRes-scaled (calibrate per video from 12), check the longest-line frame; ≤42 Latin / ~15 CJK per line; ≤20 chars/s; word-onset timing from the re-timed transcript.
+- Programmatic: Remotion for data-driven/templated videos (Studio first, render only when asked; `@remotion/captions` Caption type); MoviePy for scriptable assembly; faster-whisper for bulk; auto-editor for instant silence rough cuts (still needs the judgment passes).
+
+## Final gate
+
+> Freeze any frame: does it show one clear idea, is the audio loudness-measured, are the captions on (and off the face) — and did a fresh ASR pass read the shipped audio back exactly?
+
+If not, it's not done. Edits ship at *conformed and verified* — not at *plausible*.
+
+---
+Sources & attribution: this export condenses the `video` skill (github.com/lucasgabrieldevgg/video), an original synthesis (MIT) merging nateherkai/hyperframes-student-kit (MIT), kurbaitaev/ghost-editor (MIT), louisedesadeleer/clipify (MIT), 6missedcalls/video-editing-skill (MIT), jianshuo/claude-skills (MIT), AgriciDaniel/claude-shorts (MIT), haidrrrry/claude-remotion-skill (MIT), video-db/skills (MIT), with method concepts from remotion-dev/skills (official, credited), Agentchengfeng/chengfeng-videocut-skills (Apache-2.0), and oil-oil/oil-subtitle (credited), plus discovery via zhuyansen/awesome-claude-video-skills (CC0). Package versions live-verified 2026-10-13. Full credits: ATTRIBUTION.md in the repo.

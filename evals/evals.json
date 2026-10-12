@@ -1,0 +1,52 @@
+{
+  "skill_name": "video",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I recorded a 22-minute talking-head video for YouTube. Cut the silence and my mistakes, it's way too raw. Keep it natural though — last time an AI cut it, it sounded stuttery.",
+      "expected_output": "Runs the transcript-driven pipeline, not blind cutting. Probes first, extracts 16 kHz mono audio, transcribes word-level. Silence pass is mechanical with breath preservation: gap >= 0.55s trimmed but 0.14-0.24s natural breath kept (0.20 after sentence enders), head/tail dead air to 0.22/0.34s. Mistake pass is review-gated: separate scans (repetition, restarts, corrections, stutters, fillers), candidates surfaced with context and two-state decisions, never auto-cuts emphatic repetition. Repairs stutter-inducing joins with real room tone donor slices (10ms fades, 40ms equal-power crossfades) instead of zero-gap butting. Cuts on word times (in = first word -0.10..0.15s, out = last word +0.20..0.30s), renders ONE filtergraph pass, re-times the transcript, re-transcribes the cut and diffs it. Verifies with fresh ASR + frame strips before calling it done.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Turn this 90-minute podcast into 3 vertical clips for Instagram Reels with captions.",
+      "expected_output": "Moment selection from the word-level transcript (punchlines, reversals, awkward pauses, audio peaks), 3-5 candidates proposed as [start, end, why, title], each verified in-frame by extracting a frame and looking. Reframe 16:9 to 9:16 with a strategy chosen per content: active-speaker pan (mouth-aspect-ratio variance, ~5fps sampling, >=1.5s hysteresis segments, hard-cut step-function crop) for two-person dialogue, center crop only for single talker, split-screen if both faces must stay; NEVER center-crop a two-person interview. Word-timed captions inside the safe area (x 90-930, y 200-1600), never covering the face, longest line verified by extracted frame. First-3-seconds treated as its own edit. Audio: two-pass loudnorm to -14/-16 LUFS, TP <= -1 dBTP. Ships MP4 + .srt sidecar, 1080x1920, faststart, with measured numbers in the report.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "My video looks perfect locally but washed out and gray-ish after uploading to YouTube.",
+      "expected_output": "Diagnoses the color-metadata bug before touching pixels: ffprobe shows color_space/color_primaries/color_transfer unknown or mistagged (SD bt601 assumptions on HD footage). Offers path A first: stream-copy re-tag with -c copy -colorspace bt709 -color_primaries bt709 -color_trc bt709 (instant, lossless — colr box is container-level). If the wrong matrix was baked in during a previous re-encode: path B re-encode with scale=in_color_matrix=bt601:out_color_matrix=bt709 plus explicit tags. Declines to 'fix' it with saturation/eq filters — that bakes the error in. Adds explicit bt709 tags to every future encode in the project.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Add Chinese subtitles to this 8-minute video and burn them in. The speaker mentions a lot of product names.",
+      "expected_output": "Transcribes word-level, applies the glossary/dictionary correction pass BEFORE any judgment or caption generation (product names, jargon; correct spelling, never times or word counts; unresolvable terms reported, not guessed). Builds cues with CJK rules: <=15 chars/line, explicit line breaks, CJK-Latin boundary spacing applied mechanically. Verifies libass exists before promising burn-in (ffmpeg -filters check; static-build fallback). Fontsize calibrated per video (libass PlayRes scaling — starts ~12, not pixel values), renders a 30s preview, extracts a frame at the LONGEST-line cue and reads it before the full render. Punctuation-free display by default. Burns with proper force_style escaping (commas as \\,). Ships the .srt sidecar next to the MP4.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "The audio on my edit is all over the place — some parts whisper-quiet, some blasting. Fix it for YouTube and also make a podcast version.",
+      "expected_output": "Two-pass loudnorm for each target: pass 1 measures (measured_I/TP/LRA/thresh), pass 2 applies linear=true with the measured values (transparent, no pumping — explains why one-pass dynamic normalization is rejected). YouTube target -14 LUFS / -1 dBTP; podcast -16 LUFS. Touches only the audio stream (-c:v copy). Verifies by measuring the outputs (ebur128/loudnorm summary) and writing down integrated LUFS + true peak for both deliverables, not by ear or by trust. If a music bed exists, the voice is normalized BEFORE bed/SFX levels are set, and the bed ducks under speech.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Concatenate these five lesson clips into one course video with nice transitions between chapters.",
+      "expected_output": "Probes all five inputs first (codec, fps, resolution, SAR must match or the lossless concat demuxer glitches; mixed specs get normalized). Builds transitions with xfade + acrossfade computing cumulative offsets correctly (off-by-one-fade is the classic A/V desync). Defaults to hard cuts per craft calibration (113/119 transitions in reference reels) — transitions argue for themselves (chapter boundaries = 0.4-0.8s fade or a match cut), not a preset pack on every join. One filtergraph pass, explicit bt709 color tags, yuv420p, faststart. Verifies with frame strips across every transition and a probed output.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Generate a weekly metrics video from this JSON of numbers — title slide, 5 metric cards with count-up animations, outro. It changes every week so it has to be parameterized.",
+      "files": [],
+      "expected_output": "Chooses the programmatic track (Remotion), NOT ffmpeg string-building: data-driven timing and templated renders are its lane. Creates a composition reading the JSON, uses useCurrentFrame/useVideoConfig, spring/interpolate for count-ups, <Sequence> per card. Opens Studio FIRST (npx remotion studio) for interactive preview instead of rendering — renders only on explicit request. Word/data timing lands on exact frames; caption-quality typography (one spotlight, ~20 on-screen words per section). Renders via npx remotion render with faststart-capable encode settings, verifies key frames via render --frames. Mentions @remotion/captions Caption type if any speech/captions are added later, and Lambda/render-server for scaling the weekly volume."
+    },
+    {
+      "id": 8,
+      "prompt": "I screen-recorded a demo at a weird variable frame rate and now my cuts drift and the audio desyncs. Also add captions.",
+      "expected_output": "Recognizes the VFR bug immediately (ffprobe: r_frame_rate != avg_frame_rate on screen recordings). Normalizes to CFR FIRST (-vsync cfr -r 30 with fps filter) before any other filter or cut — explains that cutting on VFR is what desyncs downstream work. Then proceeds on the CFR master: word-level transcription, EDL cuts on word times, caption burn with the full libass discipline (calibration, longest-line frame check, safe areas). One re-encode budget respected: CFR normalize, cut, and caption burn are planned as a single final filtergraph where possible. Probes the output (fps, duration, streams) and runs the caption gate before delivery."
+    }
+  ]
+}
