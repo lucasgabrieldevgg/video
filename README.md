@@ -1,6 +1,6 @@
 # video
 
-A big skill for **professional video editing by AI agents** — born from merging the best video-editing skills found on GitHub (Remotion's official agent skills included, as method credit) into one craft-first discipline: judgment lives in ledgers, pixels render once, nothing ships unverified.
+A big skill for **professional video editing by AI agents** — born from merging the best video-editing skills found on GitHub (Remotion's official agent skills included, as method credit) into one craft-first discipline: judgment lives in ledgers, pixels render once, nothing ships unverified. **v1.1.0** adds the generated-motion track: a brief becomes a narrated, beat-synced social video — TTS voice first, Canvas/Playwright rendering, contact-sheet QC before any full render.
 
 ```
 The transcript is the timeline. The EDL is the plan.
@@ -18,9 +18,10 @@ One filtergraph, one final encode, and a frame-strip before "done".
 | **Audio** (`references/audio.md`) | Platform loudness table (−14/−16/−23 LUFS), two-pass loudnorm, sidechain ducking, bed/SFX level discipline vs voice p95, denoise ladder, room-tone air repair, J/L cut mechanics, dub-with-bed |
 | **Color** (`references/color.md`) | The four color questions, the washed-out bug and both fixes (copy re-tag / re-encode), HDR→SDR tone-map, correction-before-look order, scopes, LUTs, film looks that read as craft |
 | **Captions** (`references/captions.md`) | Burn vs soft decision, libass discipline (verify, escape, calibrate, longest-line frame), three house styles + karaoke, timing rules (word onsets, reading speed), CJK rules, face-safe placement, platform safe areas |
-| **Programmatic** (`references/programmatic.md`) | When code beats CLI: Remotion studio-first (Caption type, render/`--frames`), MoviePy assembly, faster-whisper, auto-editor, server-side scale — versions live-verified |
+| **Programmatic** (`references/programmatic.md`) | When code beats CLI: Remotion studio-first (Caption type, render/`--frames`), MoviePy assembly, Playwright frame capture, faster-whisper, auto-editor, server-side scale — versions live-verified |
+| **Generated motion video** (`references/generated-motion.md`) | **New in v1.1.0** — the voice-first brief-to-video pipeline: script sizing (~10 chars/s, spelled-out numbers), TTS discipline + the production-validated PT-BR phonetic table, 124 BPM beat-grid sync, the Canvas→Playwright→FFmpeg stack and its gotchas, contact-sheet QC before render, the fact-check gate, original-character brand stand-ins, condensed technique catalog, TikTok zone map + Instagram 4:5 rules |
 | **Cut recipes** (`references/recipes-cut.md`) | R01–R16: probe, trims, silence→EDL, review-gated mistake cuts, concat ×2, J/L cuts, speed + ramps, 16:9→9:16 (three strategies + split-screen), freeze/zoom punch, boomerang, timelapse, multicam FFT sync, scene detection |
-| **Deliver recipes** (`references/recipes-deliver.md`) | R17–R32: transcription→SRT, caption burn/soft-mux, two-pass loudnorm, bed+ducking, denoise, SFX layer, grade/LUT, washed-out fix, VFR/deinterlace, watermark/PiP, chroma key, thumbnail/GIF, platform presets + the full verification gate |
+| **Deliver recipes** (`references/recipes-deliver.md`) | R17–R33: transcription→SRT, caption burn/soft-mux, two-pass loudnorm, bed+ducking, denoise, SFX layer, grade/LUT, washed-out fix, VFR/deinterlace, watermark/PiP, chroma key, thumbnail/GIF, platform presets + the full verification gate, and the generated-video voice package (R33) |
 
 Plus a Cursor rules export at `exports/video.mdc`.
 
@@ -41,11 +42,11 @@ Editing is judgment before it is tooling: which take lives, where the breath sta
 
 ## Verification
 
-The toolchain moves fast. Package versions in `references/programmatic.md` (remotion 4.0.535, moviepy 2.2.1, faster-whisper 1.2.1, openai-whisper 20250625, auto-editor 29.3.1, yt-dlp 2026.8.19) were live-checked against npm/PyPI on 2026-10-13. ffmpeg filter behavior (xfade offsets, loudnorm two-pass, libass PlayRes scaling) carries inline caveats — re-verify against your local build (`ffmpeg -filters`, `ffmpeg -version`) before relying on a filter.
+The toolchain moves fast. Package versions in `references/programmatic.md` (remotion 4.0.535, moviepy 2.2.1, faster-whisper 1.2.1, openai-whisper 20250625, auto-editor 29.3.1, yt-dlp 2026.8.19, playwright 1.64.1) were live-checked against npm/PyPI (2026-10-13; playwright 2026-10-15). ffmpeg filter behavior (xfade offsets, loudnorm two-pass, libass PlayRes scaling) carries inline caveats — re-verify against your local build (`ffmpeg -filters`, `ffmpeg -version`) before relying on a filter.
 
 ## Attribution
 
-`video` is an original synthesis (MIT) merging upstream material from `nateherkai/hyperframes-student-kit` (MIT), `kurbaitaev/ghost-editor` (MIT), `louisedesadeleer/clipify` (MIT), `6missedcalls/video-editing-skill` (MIT), `jianshuo/claude-skills` (MIT), `AgriciDaniel/claude-shorts` (MIT), `haidrrrry/claude-remotion-skill` (MIT), `video-db/skills` (MIT), with method concepts from `remotion-dev/skills` (official, credited), `Agentchengfeng/chengfeng-videocut-skills` (Apache-2.0), `oil-oil/oil-subtitle` (credited), and discovery via `zhuyansen/awesome-claude-video-skills` (CC0), plus original recipe authorship and live version verification. See [`ATTRIBUTION.md`](ATTRIBUTION.md).
+`video` is an original synthesis (MIT) merging upstream material from `nateherkai/hyperframes-student-kit` (MIT), `kurbaitaev/ghost-editor` (MIT), `louisedesadeleer/clipify` (MIT), `6missedcalls/video-editing-skill` (MIT), `jianshuo/claude-skills` (MIT), `AgriciDaniel/claude-shorts` (MIT), `haidrrrry/claude-remotion-skill` (MIT), `video-db/skills` (MIT), and `vitormenoli/claude-motion-studio-skill` (the v1.1.0 generated-motion track — no LICENSE file upstream at merge time; **authorized for merge by the author, Vitor Menoli, via Discord DM, October 2026**), with method concepts from `remotion-dev/skills` (official, credited), `Agentchengfeng/chengfeng-videocut-skills` (Apache-2.0), `oil-oil/oil-subtitle` (credited), and discovery via `zhuyansen/awesome-claude-video-skills` (CC0), plus original recipe authorship and live version verification. See [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
 ## License
 

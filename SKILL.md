@@ -1,7 +1,7 @@
 ---
 name: video
-description: "Professional video editing for AI agents: transcript-driven and craft-first. TRACK 1 - CRAFT (the 70%): the grammar of the cut (hard cut, J-cut, L-cut, match cut, montage, cross-cutting), Murch's priority order (emotion > story > rhythm > eye-trace), pacing by format (long-form talking-head vs vertical short), retention mechanics (the first-3-seconds gate, open loops, pattern interrupts), attention discipline (one spotlight, eye-trace continuity), talking-head editing (cut on word times, breath preservation, jump-cut masking), and an editing-slop death list. TRACK 2 - THE PIPELINE: probe-first ffprobe audits (VFR, rotation, color tags), word-level transcripts as the timeline, EDL-driven cuts with review gates (silence is mechanical, mistakes are judgment), one-pass ffmpeg filtergraphs, audio finishing (two-pass loudnorm to platform LUFS targets, sidechain ducking, SFX level discipline), color (space flags, the washed-out bug, LUTs, scopes), captions (SRT/ASS/VTT, burn vs soft, libass discipline, face-safe placement, CJK rules), programmatic paths (Remotion studio-first, MoviePy, faster-whisper, auto-editor), platform delivery specs, and ~32 dual-stack recipes (ffmpeg CLI + Python), each with its guards. Hard rules throughout: probe before you cut, the transcript is the timeline, one re-encode budget, loudness is a delivery requirement, captions are not optional, verify by frame strips and fresh ASR before shipping. Use for ANY video editing task: 'cut this', 'remove the silence / mistakes', 'make clips / shorts / reels from this', 'add captions', 'fix washed-out color', 'normalize the audio', 'reframe to vertical', 'sync multicam', 'concat with transitions', 'export for YouTube / TikTok / WeChat', 'make a video from code or data' - even when the user just says 'make this watchable'."
-version: 1.0.0
+description: "Professional video editing for AI agents: transcript-driven and craft-first. TRACK 1 - CRAFT (the 70%): the grammar of the cut (hard cut, J-cut, L-cut, match cut, montage, cross-cutting), Murch's priority order (emotion > story > rhythm > eye-trace), pacing by format (long-form talking-head vs vertical short), retention mechanics (the first-3-seconds gate, open loops, pattern interrupts), attention discipline (one spotlight, eye-trace continuity), talking-head editing (cut on word times, breath preservation, jump-cut masking), and an editing-slop death list. TRACK 2 - THE PIPELINE: probe-first ffprobe audits (VFR, rotation, color tags), word-level transcripts as the timeline, EDL-driven cuts with review gates (silence is mechanical, mistakes are judgment), one-pass ffmpeg filtergraphs, audio finishing (two-pass loudnorm to platform LUFS targets, sidechain ducking, SFX level discipline), color (space flags, the washed-out bug, LUTs, scopes), captions (SRT/ASS/VTT, burn vs soft, libass discipline, face-safe placement, CJK rules), programmatic paths (Remotion studio-first, MoviePy, faster-whisper, auto-editor), platform delivery specs, and ~33 dual-stack recipes (ffmpeg CLI + Python), each with its guards. TRACK 3 - GENERATED MOTION VIDEO (new in 1.1.0): the voice-first brief-to-video pipeline — script sizing (~10 chars/s), TTS discipline with a production-validated PT-BR phonetic table, the beat grid (124 BPM, cuts snap to beats, never the reverse), the Canvas-Playwright-FFmpeg render stack with its gotchas, contact-sheet QC before every full render, the fact-check gate before narration, original character stand-ins for brands, and TikTok zone maps + Instagram 4:5 rules. Hard rules throughout: probe before you cut, the transcript is the timeline, one re-encode budget, loudness is a delivery requirement, captions are not optional, verify by frame strips and fresh ASR before shipping. Use for ANY video editing task: 'cut this', 'remove the silence / mistakes', 'make clips / shorts / reels from this', 'add captions', 'fix washed-out color', 'normalize the audio', 'reframe to vertical', 'sync multicam', 'concat with transitions', 'export for YouTube / TikTok / WeChat', 'make a video from code or data', 'make a narrated social video from this brief / script' - even when the user just says 'make this watchable'."
+version: 1.1.0
 license: MIT for the synthesis; upstream content keeps its own licenses - see ATTRIBUTION.md
 ---
 
@@ -33,8 +33,9 @@ Read only what the task needs:
 | Color spaces and flags, the washed-out bug, LUTs, scopes, grading order, HDR→SDR | `references/color.md` |
 | Captions: formats, burn vs soft, libass discipline, styles, timing rules, CJK | `references/captions.md` |
 | When code beats CLI: Remotion, MoviePy, faster-whisper, auto-editor, server-side | `references/programmatic.md` |
+| Generating a narrated / motion-graphics video from a brief or script (TTS voice, beat-synced scenes, social delivery) | `references/generated-motion.md` |
 | Cut & assemble recipes (R01–R16, dual-stack) | `references/recipes-cut.md` |
-| Enhance & deliver recipes (R17–R32, dual-stack) | `references/recipes-deliver.md` |
+| Enhance & deliver recipes (R17–R33, dual-stack) | `references/recipes-deliver.md` |
 
 ## The one-glance task matrix
 
@@ -51,6 +52,7 @@ Read only what the task needs:
 | Sync multicam angles | FFT cross-correlation (R15) |
 | Speed ramp / timelapse | segment setpts + atempo (R08/R09) |
 | Video from code, data, or a template | Remotion, studio-first (`programmatic.md`) |
+| Narrated social video from a brief / script | TTS-first pipeline + beat grid + contact sheet (`generated-motion.md`, R33) |
 | Export for a platform | delivery presets + verification (R32) |
 
 Rule of thumb: if the task is expressible as one ffmpeg filtergraph over known inputs, it is a CLI job. The moment composition logic, word-timed graphics, or data-driven rendering enters, it is a Remotion job. MoviePy sits in between for scriptable assembly of modest clips.
@@ -69,9 +71,10 @@ Rule of thumb: if the task is expressible as one ffmpeg filtergraph over known i
 - The bed ducks under speech; SFX hit on impacts, never on top of a word; a meme or stinger needs 0.6–1 s of air after the line.
 - Dead air is repaired with real room tone and 40 ms equal-power crossfades — digital silence between words is an audible dropout.
 - Every cut on a word is `first word − 0.10..0.15 s` in, `last word + 0.20..0.30 s` out; breath of 0.14–0.24 s survives every trim.
+- In generated videos the voice owns the timeline — the beat grid snaps cuts to it, never overrides it; and no full render starts before the contact sheet is clean.
 - Nothing is called done without: contiguous frame strips at every transition, a fresh ASR diff on final audio, measured LUFS, and a probed output.
 - Never fabricate: no invented logos or brand marks, no synthetic "evidence", no manufactured retention or engagement claims.
 
 ## Sources
 
-This skill is an original synthesis (MIT) merging upstream skills — nateherkai/hyperframes-student-kit, kurbaitaev/ghost-editor, louisedesadeleer/clipify, 6missedcalls/video-editing-skill, jianshuo/claude-skills, AgriciDaniel/claude-shorts, haidrrrry/claude-remotion-skill, video-db/skills, plus method concepts from remotion-dev/skills (official), Agentchengfeng/chengfeng-videocut-skills, and oil-oil/oil-subtitle. Full credits and licenses: `ATTRIBUTION.md`.
+This skill is an original synthesis (MIT) merging upstream skills — nateherkai/hyperframes-student-kit, kurbaitaev/ghost-editor, louisedesadeleer/clipify, 6missedcalls/video-editing-skill, jianshuo/claude-skills, AgriciDaniel/claude-shorts, haidrrrry/claude-remotion-skill, video-db/skills, vitormenoli/claude-motion-studio-skill (the generated-motion track, authorized by the author via Discord DM — no LICENSE file upstream at merge time), plus method concepts from remotion-dev/skills (official), Agentchengfeng/chengfeng-videocut-skills, and oil-oil/oil-subtitle. Full credits and licenses: `ATTRIBUTION.md`.

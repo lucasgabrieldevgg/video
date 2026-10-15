@@ -1,6 +1,6 @@
 # Attribution & Sources
 
-`video` is an original synthesis commissioned for this repo: the craft core and pipeline method were merged and rewritten from upstream skills, all ~32 recipes were re-authored for this skill's dual-stack (ffmpeg CLI + Python) format, and package versions were live-verified against npm and PyPI (13 October 2026). The synthesis, structure, recipe code, and merged rule set are MIT. Upstream material retains its original license.
+`video` is an original synthesis commissioned for this repo: the craft core and pipeline method were merged and rewritten from upstream skills, all ~33 recipes were re-authored for this skill's dual-stack (ffmpeg CLI + Python) format, and package versions were live-verified against npm and PyPI (13 October 2026; the generated-motion track and playwright version on 15 October 2026). The synthesis, structure, recipe code, and merged rule set are MIT. Upstream material retains its original license.
 
 ## Upstream skills (merged)
 
@@ -14,6 +14,7 @@
 | `AgriciDaniel/claude-shorts` | The longform→shortform interactive pipeline shape (score candidates, snap boundaries to natural cut points), Remotion-rendered animated caption styles (Bold/Bounce/Clean), platform-optimized export framing | MIT |
 | `haidrrrry/claude-remotion-skill` | Remotion-as-editing-surface structure (create + edit professional videos in code), motion-graphics reference organization | MIT |
 | `video-db/skills` | The server-side perception→understanding→action model (ingest, index, search moments, timeline ops) for the scale section | MIT |
+| `vitormenoli/claude-motion-studio-skill` — CLAUDE.md ruleset | The generated-motion track (v1.1.0, `references/generated-motion.md` + R33): the TTS-first pipeline (voice owns the timeline), script-sizing rules (~10 chars/s, ~130 words per 60 s, spoken-form numbers, 48 s text → 52–58 s audio), TTS tool discipline + the production-validated PT-BR phonetic spelling table, 124 BPM beat-grid sync (scene-on-beat, 8-beat recap, fixed-seed tracks, risers, SFX from word times), the Canvas→Playwright→FFmpeg render stack + its gotchas (file:// fetch, @fontsource → glyph, seed registration, ~3 fps budget, 4:5 upscale ×1.43), contact-sheet pre-render QC (10–12 frames, 3–5 defects/video), the fact-check gate (2-source rule, on-screen source lines), original-character brand stand-ins, the technique catalog, TikTok zone map granularity, Instagram 4:5 rules (frame-0 loop, CTA-clean keywords, no-swipe last slide, emoji-as-drawn-icons), <20 MB export + source .zip discipline | No LICENSE file upstream at merge time — **authorized for merge by the author (Vitor Menoli) via Discord DM, October 2026**; this row updates if a license lands upstream |
 
 ## Method/concept credits (not code-merged)
 
@@ -26,9 +27,9 @@
 
 ## Original verification work
 
-- **Version verification**: checked live against npm and PyPI on 2026-10-13 — remotion 4.0.535, @remotion/captions 4.0.535, @remotion/install-whisper-cpp 4.0.535, moviepy 2.2.1, faster-whisper 1.2.1, openai-whisper 20250625, auto-editor 29.3.1, yt-dlp 2026.8.19 — reflected in `references/programmatic.md`.
-- **Upstream landscape survey**: 12 repositories cloned and studied before synthesis (GitHub search on 2026-10-12/13: "claude skill ffmpeg", "claude skill video editing", "remotion claude skill", "claude skill subtitles/captions", plus the remotion-dev org and ClawHub listings). Generation-focused skills (explainer/promo/AI-video generators) were identified and excluded by scope decision — this skill edits footage, it does not generate it.
-- **Recipe corpus**: all 32 recipes in `references/recipes-cut.md` and `references/recipes-deliver.md` were written for this repo — merging technique ideas from upstream (ROI motion-energy speaker detection, xfade offset math, two-pass loudnorm, palettegen GIF, room-tone repair) with original dual-stack implementations and guard lines.
+- **Version verification**: checked live against npm and PyPI on 2026-10-13 — remotion 4.0.535, @remotion/captions 4.0.535, @remotion/install-whisper-cpp 4.0.535, moviepy 2.2.1, faster-whisper 1.2.1, openai-whisper 20250625, auto-editor 29.3.1, yt-dlp 2026.8.19 — reflected in `references/programmatic.md`; playwright 1.64.1 added 2026-10-15 for the generated-motion lane.
+- **Upstream landscape survey**: 12 repositories cloned and studied before synthesis (GitHub search on 2026-10-12/13: "claude skill ffmpeg", "claude skill video editing", "remotion claude skill", "claude skill subtitles/captions", plus the remotion-dev org and ClawHub listings). Generation-focused skills (explainer/promo/AI-video generators) were identified and excluded by scope decision — this skill edits footage, it does not generate it. That scope was deliberately widened in v1.1.0 (15 October 2026): the TTS-first motion-graphics *generation* lane was added from `vitormenoli/claude-motion-studio-skill`, after author authorization, because it is the pipeline-specific complement to this skill's editing core — script-to-rendered-video with the same ledger discipline. Generic AI-video generators remain out of scope.
+- **Recipe corpus**: all 33 recipes in `references/recipes-cut.md` and `references/recipes-deliver.md` were written for this repo — merging technique ideas from upstream (ROI motion-energy speaker detection, xfade offset math, two-pass loudnorm, palettegen GIF, room-tone repair; R33's voice-package/beat-grid/contact-sheet commands from motion-studio) with original dual-stack implementations and guard lines.
 - **The craft layer** (`references/the-edit.md`) synthesizes upstream editing judgment with standard practice: Walter Murch's priority order from *In the Blink of an Eye*, the Kuleshov effect, continuity grammar (180°/30°/eyeline), and format pacing norms.
 - **The structure, routing, hard rules, and wording** are original to this repo.
 
@@ -42,6 +43,7 @@
 - **Daniel Agrici** — claude-shorts' interactive longform→shortform pipeline.
 - **haidrrrry** — the Remotion editing-surface skill.
 - **The VideoDB team** — the server-side video model.
+- **Vitor Menoli** — motion-studio's production-validated TTS-first pipeline: the voice-owns-the-timeline rule, the PT-BR phonetic table, beat-grid sync, and the contact-sheet gate now live in `references/generated-motion.md`.
 - **The Remotion team** (Jonny Burger and maintainers) — the official Agent Skills and the framework itself.
 - **chengfeng** — the five-pass scan and ledger separation.
 - **oil-oil** — the subtitle correction discipline.

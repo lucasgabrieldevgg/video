@@ -1,8 +1,8 @@
-# Recipes — enhance & deliver (R17–R32)
+# Recipes — enhance & deliver (R17–R33)
 
 *Dual-stack, same contract as recipes-cut.md. Delivery verification (R32) is not optional — it is the last recipe every project runs.*
 
-*Recipe corpus written for this skill, merging technique ideas from upstream — two-pass loudness and SFX-level discipline (kurbaitaev/ghost-editor), libass burn and washed-out-color fixes (jianshuo/claude-skills), room-tone repair (nateherkai/hyperframes-student-kit), bed levels (AgriciDaniel/claude-shorts) — re-authored as original dual-stack implementations. Full credits: ATTRIBUTION.md.*
+*Recipe corpus written for this skill, merging technique ideas from upstream — two-pass loudness and SFX-level discipline (kurbaitaev/ghost-editor), libass burn and washed-out-color fixes (jianshuo/claude-skills), room-tone repair (nateherkai/hyperframes-student-kit), bed levels (AgriciDaniel/claude-shorts), and the R33 generated-video voice package and contact-sheet commands (vitormenoli/claude-motion-studio-skill, authorized by the author) — re-authored as original dual-stack implementations. Full credits: ATTRIBUTION.md.*
 
 ### R17 · Word-level transcription → SRT
 
@@ -225,3 +225,30 @@ ffprobe -v error -print_format json -show_format -show_streams final.mp4
 ```
 
 Guards: faststart on every MP4; captions sidecar (`.srt`) ships even when burned; safe-area text check at phone scale; the delivery report carries real numbers (LUFS, TP, duration, removed-s %, output hash) and the modality list actually used — a pass never comes from file existence.
+
+### R33 · Generated social video — voice package, beat grid, contact sheet
+
+The command spine of `generated-motion.md` (voice-first brief→video). Run in this order; the full pipeline discipline lives in the reference.
+
+```bash
+# 1. voice package, per scene: trim edges, compress (pitch-preserving), normalize the stem
+ffmpeg -i scene01.wav -af "silenceremove=start_periods=1:start_threshold=-45dB,\
+atempo=1.15,loudnorm=I=-15:TP=-2:LRA=11" -ar 48000 s01_clean.wav
+#    (cap internal pauses at 0.17-0.3 s via silenceremove stop_duration; keep breath rules from the-pipeline.md)
+
+# 2. beat grid @124 BPM -> 0.4839 s/beat; snap every scene cut to the grid; recap screen = 8 beats
+
+# 3. contact sheet BEFORE the full render: 12 key frames -> one grid, read it, loop until clean
+ffmpeg -framerate 30 -i frames/f%04d.png \
+  -vf "select='not(mod(n,75))',scale=270:480,tile=layout=4x3" -frames:v 1 sheet.png
+
+# 4. full render happens only after the sheet is clean; assemble frames + mix
+ffmpeg -framerate 30 -i frames/f%04d.png -i mix.wav -c:v libx264 -crf 21 -pix_fmt yuv420p \
+  -colorspace bt709 -color_primaries bt709 -color_trc bt709 \
+  -c:a aac -b:a 192k -movflags +faststart -shortest final.mp4
+
+# 5. IG 4:5 audio-only fix: loudnorm, then remux - video is NEVER re-rendered to fix audio
+ffmpeg -i final.mp4 -af "loudnorm=I=-16:TP=-1:LRA=11" -c:v copy ig_master.mp4
+```
+
+Guards: the voice owns the timeline — the beat grid snaps cuts, never overrides speech; every TTS stem is transcribed back and diffed before timeline math (mispronunciation fixes happen pre-timeline, §3 of the reference); every random seed registered (re-render must be pixel-identical); `atempo` stays in 0.5–2.0 per stage (chain outside it, R08); render budget ~3 fps — background job, contact sheet first; numbers in the alignment text are spelled out; then R32's full gate (frame strips, fresh ASR, measured LUFS, probed output) — generated videos pass the *same* ship gate as edited ones.

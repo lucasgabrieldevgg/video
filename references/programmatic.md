@@ -1,6 +1,6 @@
 # Programmatic editing — when code beats the CLI
 
-*Merged from: remotion-dev/skills (official agent skills — studio-first workflow, Caption type, render discipline; method credit), AgriciDaniel/claude-shorts (Remotion caption components), haidrrrry/claude-remotion-skill (skill structure), video-db/skills (server-side perception model). Versions live-verified 2026-10-13.*
+*Merged from: remotion-dev/skills (official agent skills — studio-first workflow, Caption type, render discipline; method credit), AgriciDaniel/claude-shorts (Remotion caption components), haidrrrry/claude-remotion-skill (skill structure), video-db/skills (server-side perception model), vitormenoli/claude-motion-studio-skill (Canvas→Playwright→FFmpeg lane — authorized by the author). Versions live-verified 2026-10-13; playwright 2026-10-15.*
 
 The CLI is the scalpel; code is the factory. Reach for code when any of these is true:
 
@@ -17,6 +17,7 @@ The CLI is the scalpel; code is the factory. Reach for code when any of these is
 | faster-whisper | 1.2.1 | GPU transcription (CTranslate2, ~4× faster) |
 | openai-whisper | 20250625 | reference ASR |
 | auto-editor | 29.3.1 | instant silence-based rough cuts |
+| playwright | 1.64.1 (2026-10-15) | headless frame capture for the Canvas→Playwright→FFmpeg lane (`generated-motion.md`) |
 | yt-dlp | 2026.8.19 | ingest (respect platform ToS) |
 
 ## 1 · Remotion — video as React
@@ -94,6 +95,7 @@ When the job is *many* videos or *finding* moments across hours: managed pipelin
 
 - **One known transform over known files** → ffmpeg CLI.
 - **Data-driven timing or templated renders** → Remotion (Studio to iterate, render once).
+- **Plain-Canvas scenes, no React, dependency-light** → Playwright frame capture + ffmpeg assemble (`generated-motion.md` §5).
 - **Scriptable glue / generated cards / conditional assembly** → MoviePy.
 - **Bulk transcription** → faster-whisper (or whisper.cpp in Remotion projects).
 - **Instant rough cut from silence** → auto-editor, then the judgment passes.

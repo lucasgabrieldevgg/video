@@ -1,6 +1,6 @@
 # Audio — the half everyone underestimates
 
-*Merged from: kurbaitaev/ghost-editor (SFX targets, prep-order discipline, calibration), AgriciDaniel/claude-shorts (bed levels), nateherkai/hyperframes-student-kit (room-tone repair, acoustic-level auditing), jianshuo/claude-skills (dub/bed mixing). Re-authored for this skill.*
+*Merged from: kurbaitaev/ghost-editor (SFX targets, prep-order discipline, calibration), AgriciDaniel/claude-shorts (bed levels), nateherkai/hyperframes-student-kit (room-tone repair, acoustic-level auditing), jianshuo/claude-skills (dub/bed mixing), vitormenoli/claude-motion-studio-skill (TTS stem treatment chain — authorized by the author). Re-authored for this skill.*
 
 Order of operations is law: **denoise → normalize the voice → bed and ducking → SFX measured against the finished voice → final master verify.** Fixing levels after SFX, or lifting the finished mix, undoes everything before it.
 
@@ -28,6 +28,7 @@ One-pass `loudnorm` is dynamic normalization — it pumps. Use it only when the 
 ## 2 · The voice is the master
 
 - Normalize the voice **in prep, before any SFX exists**. Every later level is measured *relative to this voice* — the reference is the voice's p95 peak, not a number you typed.
+- **Generated (TTS) voices enter the same way**: per-scene stems cleaned (edge trim, 0.17–0.3 s pause cap), `atempo` 1.12–1.38× compressed, normalized ~−15 LUFS, and transcribed back before any timeline math — full treatment in `generated-motion.md` §3.
 - Duck the bed under **every** spoken line — not just the loud ones: `sidechaincompress` (R21). Under a freeze or a payoff, the bed nearly disappears.
 - Bed level: start 14–20 dB under the voice, then adjust to the actual track. "Music too loud" is fixed by lowering the bed *relative to the reviewed version* — verify the ratio changed, not just the master level.
 - `amix=normalize=0` always — the default auto-attenuation silently drops both inputs ~3 dB when they overlap.

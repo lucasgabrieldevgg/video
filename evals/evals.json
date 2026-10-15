@@ -47,6 +47,12 @@
       "id": 8,
       "prompt": "I screen-recorded a demo at a weird variable frame rate and now my cuts drift and the audio desyncs. Also add captions.",
       "expected_output": "Recognizes the VFR bug immediately (ffprobe: r_frame_rate != avg_frame_rate on screen recordings). Normalizes to CFR FIRST (-vsync cfr -r 30 with fps filter) before any other filter or cut — explains that cutting on VFR is what desyncs downstream work. Then proceeds on the CFR master: word-level transcription, EDL cuts on word times, caption burn with the full libass discipline (calibration, longest-line frame check, safe areas). One re-encode budget respected: CFR normalize, cut, and caption burn are planned as a single final filtergraph where possible. Probes the output (fps, duration, streams) and runs the caption gate before delivery."
+    },
+    {
+      "id": 9,
+      "prompt": "Turn this two-paragraph brief into a 45-second narrated TikTok video with animated stats. PT-BR voice.",
+      "expected_output": "Routes to the generated-motion track (voice-first), NOT an editing flow. Script sized to the duration BEFORE audio: ~10 chars/s, ~130 words per 60 s, numbers spelled out in the alignment text (spoken form, not digits). Fact-check gate runs pre-voice: every number/date/claim checked against 2 sources, corrections surfaced for approval, on-screen source line planned (e.g. '418 mil · 14/set · via Bloomberg'). TTS per scene (not one blob) with PT-BR phonetic spellings from the table (OpenAI -> 'Ópen ei ái', numbers spelled out), stems cleaned (edge trim, pauses capped 0.17-0.3s, atempo 1.12-1.38x pitch-preserving, ~-15 LUFS) and each transcribed back + diffed before timeline math. THE VOICE OWNS THE TIMELINE: beat grid (124 BPM, 0.4839 s/beat) snaps scene cuts and SFX, never overrides speech; recap screen = 8 beats, one topic per beat. Scenes as Canvas code rendered via Playwright (1.64.1) -> ffmpeg assembly; registers every random seed. Contact sheet (10-12 key frames, one grid) read BEFORE the full render (~3 fps budget, background job) — loops until clean. TikTok zone map respected (top y<=240 header, right of x~920-940 buttons, 80px margin / 900px column). Final master ~-14 LUFS TikTok, then the SAME ship gate as edited video: frame strips, fresh ASR diff, measured LUFS, probed output (R32/R33).",
+      "files": []
     }
   ]
 }
